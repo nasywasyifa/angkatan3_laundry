@@ -117,9 +117,6 @@ $tampilLevel = mysqli_query($koneksi, "SELECT * FROM level ORDER BY id Desc");
                 <?php include 'inc/nav.php'; ?>
 
                 <!-- / Navbar -->
-<div class="coba">
-    <h1>te3ss</h1>
-</div>
                 <!-- Content wrapper -->
                 <div class="content-wrapper">
                     <!-- Content -->
