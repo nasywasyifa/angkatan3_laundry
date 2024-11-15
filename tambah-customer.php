@@ -1,19 +1,34 @@
 <?php
 session_start();
 include 'koneksi.php';
-//munculkan / pilih sebuah atau semua kolom dari table user
-$queryUser = mysqli_query($koneksi, "SELECT level.nama_level, user.* FROM user LEFT JOIN level ON level.id = user.id_level ORDER BY id DESC");
 
-//mysqli_fetch_assoc($query) = untuk menjadikan hasil  query menjadi sebuah data (object, array)
+//jika button simpan  di tekan
+if (isset($_POST['simpan'])) {
+    $customer_name = $_POST['customer_name'];
+    $phone = $_POST['phone'];
+    $address = $_POST['address'];
 
-// jika parameternya ada ?delete=nilai param
-if (isset($_GET['delete'])) {
-    $id = $_GET['delete']; //mengambil nilai param
+    $insert = mysqli_query($koneksi,  "INSERT INTO customer (customer_name, phone, address) VALUES ('$customer_name', '$phone', '$address')");
 
-    // query / perintah hapus
-    $delete = mysqli_query($koneksi, "DELETE FROM user WHERE id ='$id'");
-    header("location:user.php?hapus=berhasil");
+    header("location:customer.php?tambah=berhasil");
 }
+
+$id = isset($_GET['edit']) ? $_GET['edit'] : '';
+$queryEdit = mysqli_query($koneksi, "SELECT * FROM customer WHERE id ='$id'");
+$rowEdit = mysqli_fetch_assoc($queryEdit);
+
+//jika button edit di klik
+if (isset($_POST['edit'])) {
+  $customer_name = $_POST['customer_name'];
+  $phone = $_POST['phone'];
+  $address = $_POST['address'];
+
+    $update = mysqli_query($koneksi, "UPDATE customer SET customer_name='$customer_name', phone='$phone', address='$address' WHERE id='$id'");
+    header("location:customer.php?ubah=berhasil");
+}
+
+// data level
+$tampilCustomer = mysqli_query($koneksi, "SELECT * FROM customer ORDER BY id Desc");
 ?>
 
 <!DOCTYPE html>
@@ -70,7 +85,6 @@ if (isset($_GET['delete'])) {
                 <?php include 'inc/nav.php'; ?>
 
                 <!-- / Navbar -->
-
                 <!-- Content wrapper -->
                 <div class="content-wrapper">
                     <!-- Content -->
@@ -79,45 +93,38 @@ if (isset($_GET['delete'])) {
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card">
-                                    <div class="card-header">Data user</div>
+                                    <div class="card-header"><?php echo isset($_GET['edit']) ? 'Edit' : 'Tambah' ?> Customer</div>
                                     <div class="card-body">
                                         <?php if (isset($_GET['hapus'])): ?>
                                             <div class="alert alert-success" role="alert">
                                                 Data berhasil dihapus</div>
                                         <?php endif ?>
-                                        <div align="right" class="mb-3">
-                                            <a href="tambah-user.php" class="btn btn-primary">Tambah</a>
-                                        </div>
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Level</th>
-                                                    <th>Nama</th>
-                                                    <th>Email</th>
-                                                    <th>Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php $no = 1;
-                                                while ($rowContact = mysqli_fetch_assoc($queryUser)) { ?>
-                                                    <tr>
-                                                        <td><?php echo $no++ ?></td>
-                                                        <td><?php echo $rowContact['nama_level'] ?></td>
-                                                        <td><?php echo $rowContact['nama'] ?></td>
-                                                        <td><?php echo $rowContact['email'] ?></td>
-                                                       
-                                                        <td>
-                                                            <a href="tambah-user.php?edit=<?php echo $rowContact['id'] ?>" class="btn btn-success btn-sm">
-                                                                <span class="tf-icon bx bx-pencil bx-18px"></span></a>
-                                                            <a onclick="return confirm('Apakah anda yakin akan menghapus data ini?')"
-                                                                href="user.php?delete=<?php echo $rowContact['id'] ?>" class="btn btn-danger btn-sm">
-                                                                <span class="tf-icon bx bx-trash bx-18px"></span></a>
-                                                        </td>
-                                                    </tr>
-                                                <?php } ?>
-                                            </tbody>
-                                        </table>
+
+                                        <form action="" method="post" enctype="multipart/form-data">
+                                            <div class="mb-3 row">
+                                                <div class="col-sm-12">
+                                                    <label for="" class="form-label">Nama Pelanggan</label>
+                                                    <input type="text" name="customer_name" placeholder="Nama Pelanggan" class="form-control" value="<?php echo !empty($_GET['edit']) ? $rowEdit['customer_name'] : '' ?>">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <div class="col-sm-12">
+                                                    <label for="" class="form-label">Telepon</label>
+                                                    <input type="text" name="phone" placeholder="Telepon" class="form-control" value="<?php echo !empty($_GET['edit']) ? $rowEdit['phone'] : '' ?>">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <div class="col-sm-12">
+                                                    <label for="" class="form-label">Alamat</label>
+                                                    <input type="text" name="address" placeholder="Alamat" class="form-control" value="<?php echo !empty($_GET['edit']) ? $rowEdit['address'] : '' ?>">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <button class="btn btn-primary" name="<?php echo isset($_GET['edit']) ? 'edit' : 'simpan' ?>" type="submit">
+                                                    Simpan
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
 
                                 </div>
@@ -127,15 +134,14 @@ if (isset($_GET['delete'])) {
 
 
                     </div>
-                </div>
-                <!-- / Content -->
-
-                <!-- Footer -->
-                <footer class="content-footer footer bg-footer-theme">
-                    <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
-                        <div class="mb-2 mb-md-0">
-                            ©
-                            <script>
+                    <!-- / Content -->
+                    
+                    <!-- Footer -->
+                    <footer class="content-footer footer bg-footer-theme">
+                        <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+                            <div class="mb-2 mb-md-0">
+                                ©
+                                <script>
                                 document.write(new Date().getFullYear());
                             </script>
                             , made with ❤️ by
@@ -146,17 +152,18 @@ if (isset($_GET['delete'])) {
                             <a href="https://themeselection.com/" target="_blank" class="footer-link me-4">More Themes</a>
 
                             <a
-                                href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/"
-                                target="_blank"
-                                class="footer-link me-4">Documentation</a>
-
+                            href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/"
+                            target="_blank"
+                            class="footer-link me-4">Documentation</a>
+                            
                             <a
-                                href="https://github.com/themeselection/sneat-html-admin-template-free/issues"
-                                target="_blank"
-                                class="footer-link me-4">Support</a>
+                            href="https://github.com/themeselection/sneat-html-admin-template-free/issues"
+                            target="_blank"
+                            class="footer-link me-4">Support</a>
                         </div>
                     </div>
                 </footer>
+            </div>
                 <!-- / Footer -->
 
                 <div class="content-backdrop fade"></div>

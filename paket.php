@@ -2,7 +2,7 @@
 session_start();
 include 'koneksi.php';
 //munculkan / pilih sebuah atau semua kolom dari table user
-$queryUser = mysqli_query($koneksi, "SELECT level.nama_level, user.* FROM user LEFT JOIN level ON level.id = user.id_level ORDER BY id DESC");
+$queryUser = mysqli_query($koneksi, "SELECT * FROM paket ORDER BY id DESC");
 
 //mysqli_fetch_assoc($query) = untuk menjadikan hasil  query menjadi sebuah data (object, array)
 
@@ -11,8 +11,8 @@ if (isset($_GET['delete'])) {
     $id = $_GET['delete']; //mengambil nilai param
 
     // query / perintah hapus
-    $delete = mysqli_query($koneksi, "DELETE FROM user WHERE id ='$id'");
-    header("location:user.php?hapus=berhasil");
+    $delete = mysqli_query($koneksi, "DELETE FROM paket WHERE id ='$id'");
+    header("location:paket.php?hapus=berhasil");
 }
 ?>
 
@@ -79,39 +79,38 @@ if (isset($_GET['delete'])) {
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card">
-                                    <div class="card-header">Data user</div>
+                                    <div class="card-header">Data Paket</div>
                                     <div class="card-body">
                                         <?php if (isset($_GET['hapus'])): ?>
                                             <div class="alert alert-success" role="alert">
                                                 Data berhasil dihapus</div>
                                         <?php endif ?>
                                         <div align="right" class="mb-3">
-                                            <a href="tambah-user.php" class="btn btn-primary">Tambah</a>
+                                            <a href="tambah-paket.php" class="btn btn-primary">Tambah</a>
                                         </div>
                                         <table class="table table-bordered">
                                             <thead>
                                                 <tr>
                                                     <th>No</th>
-                                                    <th>Level</th>
-                                                    <th>Nama</th>
-                                                    <th>Email</th>
+                                                    <th>Nama Paket</th>
+                                                    <th>Harga</th>
+                                                    <th>Deskripsi</th>
                                                     <th>Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php $no = 1;
-                                                while ($rowContact = mysqli_fetch_assoc($queryUser)) { ?>
+                                                while ($rowPaket = mysqli_fetch_assoc($queryUser)) { ?>
                                                     <tr>
                                                         <td><?php echo $no++ ?></td>
-                                                        <td><?php echo $rowContact['nama_level'] ?></td>
-                                                        <td><?php echo $rowContact['nama'] ?></td>
-                                                        <td><?php echo $rowContact['email'] ?></td>
-                                                       
+                                                        <td><?php echo $rowPaket['nama_paket'] ?></td>
+                                                        <td><?php echo "Rp" . number_format ($rowPaket['harga']) ?></td>
+                                                        <td><?php echo $rowPaket['deskripsi'] ?></td>
                                                         <td>
-                                                            <a href="tambah-user.php?edit=<?php echo $rowContact['id'] ?>" class="btn btn-success btn-sm">
+                                                            <a href="tambah-paket.php?edit=<?php echo $rowPaket['id'] ?>" class="btn btn-success btn-sm">
                                                                 <span class="tf-icon bx bx-pencil bx-18px"></span></a>
                                                             <a onclick="return confirm('Apakah anda yakin akan menghapus data ini?')"
-                                                                href="user.php?delete=<?php echo $rowContact['id'] ?>" class="btn btn-danger btn-sm">
+                                                                href="paket.php?delete=<?php echo $rowPaket['id'] ?>" class="btn btn-danger btn-sm">
                                                                 <span class="tf-icon bx bx-trash bx-18px"></span></a>
                                                         </td>
                                                     </tr>

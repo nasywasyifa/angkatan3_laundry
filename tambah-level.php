@@ -3,60 +3,24 @@ session_start();
 include 'koneksi.php';
 
 //jika button simpan  di tekan
-
 if (isset($_POST['simpan'])) {
-    $nama = $_POST['nama'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $nama_level = $_POST['nama_level'];
 
-    // $_POST: form input name=''
-    // $_GET : url ?param='nilai'
-    // $_FILE: ngambil nilai dari input type file
-    if (!empty($_FILES['foto']['name'])) {
-        $nama_foto = $_FILES['foto']['name'];
-        $ukuran_foto = $_FILES['foto']['size'];
+    $insert = mysqli_query($koneksi,  "INSERT INTO level (nama_level) VALUES ('$nama_level')");
 
-        //png, jpg,  jpeg, gif
-        $ext = array('png', 'jpg', 'jpeg');
-        $nextFoto = pathinfo($nama_foto, PATHINFO_EXTENSION);
-
-        //JIKA EXTENSI FOTO TIDAK ADA EXT YANG TERDAFTAR DI  ARRAY EXT
-        if (!in_array($nextFoto, $ext)) {
-            echo "Ext tidak ditemukan";
-            die;
-        } else {
-            // pindahkan gambar dari tmp folder yang sudah kita buat
-            move_uploaded_file($_FILES['foto']['tmp_name'], 'upload/' . $nama_foto);
-
-            $insert = mysqli_query($koneksi,  "INSERT INTO user (nama, email, password, foto) VALUES ('$nama', '$email', '$password' ,'$nama_foto')");
-        }
-    } else {
-        $insert = mysqli_query($koneksi,  "INSERT INTO user (nama, email, password) VALUES ('$nama', '$email', '$password')");
-    }
-
-
-    header("location:user.php?tambah=berhasil");
+    header("location:level.php?tambah=berhasil");
 }
 
 $id = isset($_GET['edit']) ? $_GET['edit'] : '';
-$queryEdit = mysqli_query($koneksi, "SELECT * FROM user WHERE id ='$id'");
+$queryEdit = mysqli_query($koneksi, "SELECT * FROM level WHERE id ='$id'");
 $rowEdit = mysqli_fetch_assoc($queryEdit);
 
 //jika button edit di klik
 if (isset($_POST['edit'])) {
-    $nama = $_POST['nama'];
-    $email = $_POST['email'];
+  $nama_level = $_POST['nama_level'];
 
-    //jika password di isi sama user
-    if ($_POST['password']) {
-        $password = $_POST['password'];
-    } else {
-        $password = $rowEdit['password'];
-    }
-
-    $update = mysqli_query($koneksi, "UPDATE user SET nama='$nama',
-    email='$email', password='$password' WHERE id='$id'");
-    header("location:user.php?ubah=berhasil");
+    $update = mysqli_query($koneksi, "UPDATE level SET nama_level='$nama_level' WHERE id='$id'");
+    header("location:level.php?ubah=berhasil");
 }
 
 // data level
@@ -125,7 +89,7 @@ $tampilLevel = mysqli_query($koneksi, "SELECT * FROM level ORDER BY id Desc");
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card">
-                                    <div class="card-header"><?php echo isset($_GET['edit']) ? 'Edit' : 'Tambah' ?> user</div>
+                                    <div class="card-header"><?php echo isset($_GET['edit']) ? 'Edit' : 'Tambah' ?> Level</div>
                                     <div class="card-body">
                                         <?php if (isset($_GET['hapus'])): ?>
                                             <div class="alert alert-success" role="alert">
@@ -135,51 +99,8 @@ $tampilLevel = mysqli_query($koneksi, "SELECT * FROM level ORDER BY id Desc");
                                         <form action="" method="post" enctype="multipart/form-data">
                                             <div class="mb-3 row">
                                                 <div class="col-sm-12">
-                                                    <label for="" class="form-label">Level</label>
-                                                    <select class="form-control" name="id_level" id="">
-                                                        <option value="">--Pilih Level--</option>
-                                                        <?php 
-                                                        while ($row = mysqli_fetch_assoc($tampilLevel)) {
-                                                            if (isset($_GET['edit']) && $row['id'] == $rowEdit['id_level']) {
-                                                                $selected = 'selected';
-                                                            } else {
-                                                                $selected = '';
-                                                            }
-                                                            ?>
-                                                            <option value="<?= $row['id'] ?>" <?= $selected ?>><?= $row['nama_level'] ?></option>
-                                                        <?php 
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </div>
-
-                                            </div>
-                                            
-                                            <div class="mb-3 row">
-                                                <div class="col-sm-6">
-                                                    <label for="" class="form-label">Nama</label>
-                                                    <input type="text" class="form-control" name="nama" placeholder="Masukan nama anda"
-                                                        required
-                                                        value="<?php echo isset($_GET['edit']) ? $rowEdit['nama'] : '' ?>">
-
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <label for="" class="form-label">Email</label>
-                                                    <input type="email" class="form-control" name="email" placeholder="Masukan email anda"
-                                                        required
-                                                        value="<?php echo isset($_GET['edit']) ? $rowEdit['email'] : '' ?>">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3 row">
-                                                <div class="col-sm-6">
-                                                    <label for="" class="form-label">Password</label>
-                                                    <input type="password" name="password" placeholder="Masukan password anda" required class="form-control" id="">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3 row">
-                                                <div class="col-sm-12">
-                                                    <label for="" class="form-label">Foto</label>
-                                                    <input type="file" name="foto">
+                                                    <label for="" class="form-label">Nama Level</label>
+                                                    <input type="text" name="nama_level" placeholder="Nama Level" class="form-control" value="<?php echo !empty($_GET['edit']) ? $rowEdit['nama_level'] : '' ?>">
                                                 </div>
                                             </div>
                                             <div class="mb-3">
@@ -244,22 +165,22 @@ $tampilLevel = mysqli_query($koneksi, "SELECT * FROM level ORDER BY id Desc");
 
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
-    <script src="assets/assets/vendor/libs/jquery/jquery.js"></script>
-    <script src="assets/assets/vendor/libs/popper/popper.js"></script>
-    <script src="assets/assets/vendor/js/bootstrap.js"></script>
-    <script src="assets/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="../assets/admin/assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="../assets/admin/assets/vendor/libs/popper/popper.js"></script>
+    <script src="../assets/admin/assets/vendor/js/bootstrap.js"></script>
+    <script src="../assets/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
 
-    <script src="assets/assets/vendor/js/menu.js"></script>
+    <script src="../assets/admin/assets/vendor/js/menu.js"></script>
     <!-- endbuild -->
 
     <!-- Vendors JS -->
-    <script src="assets/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+    <script src="../assets/admin/assets/vendor/libs/apex-charts/apexcharts.js"></script>
 
     <!-- Main JS -->
-    <script src="assets/assets/js/main.js"></script>
+    <script src="../assets/admin/assets/js/main.js"></script>
 
     <!-- Page JS -->
-    <script src="assets/assets/js/dashboards-analytics.js"></script>
+    <script src="../assets/admin/assets/js/dashboards-analytics.js"></script>
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
